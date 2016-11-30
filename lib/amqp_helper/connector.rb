@@ -40,9 +40,11 @@ module AmqpHelper
       self.connectors.values.each { |connector| connector.mock }
     end
 
-    #for testing
+    #for testing - effectively reinitialize with BunnyMock connection
     def mock
-      self.connection = BunnyMock.new.start
+      self.known_queues = Set.new
+      self.connection.close if self.connection
+      self.connection = BunnyMock.new(self.config).start
     end
 
     def self.clear_all_queues
