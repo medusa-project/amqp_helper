@@ -5,6 +5,8 @@ require 'json'
 require 'bunny'
 require 'bunny-mock'
 
+BunnyMock::use_bunny_queue_pop_api = true
+
 module AmqpHelper
   class Connector < Object
 
