@@ -1,5 +1,6 @@
-require "amqp_helper/version"
+require 'amqp_helper/version'
 
 module AmqpHelper
-  # Your code goes here...
+  autoload(:Listener, 'amqp_helper/listener')
+  autoload(:Connector, 'amqp_helper/connector')
 end
