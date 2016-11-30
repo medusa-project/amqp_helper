@@ -2,6 +2,7 @@
 #queue name is the queue to take messages from
 #name is just a string to refer to this listener, use in logs, etc. Must be unique
 #action callback is a block that takes the payload received and does whatever to it
+require 'bunny'
 module AmqpHelper
   class Listener
 

@@ -2,6 +2,8 @@
 #The amqp section of Settings.medusa can contain any option appropriate for Bunny.new.
 require 'set'
 require 'json'
+require 'bunny'
+require 'bunny-mock'
 
 module AmqpHelper
   class Connector < Object
