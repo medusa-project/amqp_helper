@@ -31,6 +31,16 @@ module AmqpHelper
       self.connection.start
     end
 
+    #for testing
+    def self.mock_all
+      self.connectors.values.each { |connector| connector.mock }
+    end
+
+    #for testing
+    def mock
+      self.connection = BunnyMock.new.start
+    end
+
     def self.clear_all_queues
       self.connectors.values.each { |connector| connector.clear_all_queues } if self.connectors.present?
     end
