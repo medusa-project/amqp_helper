@@ -68,6 +68,7 @@ module AmqpHelper
     end
 
     def with_channel
+      connection.start unless connection.open?
       channel = connection.create_channel
       yield channel
     ensure
