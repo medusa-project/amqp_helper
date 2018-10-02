@@ -17,6 +17,7 @@ module AmqpHelper
       self.class.connectors ||= Hash.new
       self.class.connectors[key] = self
       self.config = config.to_h.symbolize_keys.merge!(recover_from_connection_close: true)
+      @connection = nil
       self.reinitialize
     end
 
@@ -24,8 +25,8 @@ module AmqpHelper
       @connection = conn
     end
 
-    def connection
-      ensure_connection_started
+    def connection(ensure_started: true)
+      ensure_connection_started if ensure_started
       @connection
     end
 
@@ -48,7 +49,7 @@ module AmqpHelper
 
     def reinitialize
       self.known_queues = Set.new
-      self.connection.close if self.connection
+      self.connection.close if self.connection(ensure_started: false)
       self.connection = Bunny.new(self.config)
     end
 
@@ -60,7 +61,7 @@ module AmqpHelper
     #for testing - effectively reinitialize with BunnyMock connection
     def mock
       self.known_queues = Set.new
-      self.connection.close if self.connection
+      self.connection.close if self.connection(ensure_started: false)
       self.connection = BunnyMock.new(self.config).start
     end
 
@@ -85,7 +86,6 @@ module AmqpHelper
     end
 
     def with_channel
-      connection.start unless connection.open?
       channel = connection.create_channel
       yield channel
     ensure
