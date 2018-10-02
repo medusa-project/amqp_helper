@@ -11,7 +11,7 @@ module AmqpHelper
   class Connector < Object
 
     cattr_accessor :connectors
-    attr_accessor :connection, :known_queues, :config
+    attr_accessor :known_queues, :config
 
     def initialize(key, config)
       self.class.connectors ||= Hash.new
@@ -20,6 +20,20 @@ module AmqpHelper
       self.reinitialize
     end
 
+    def connection=(conn)
+      @connection = conn
+    end
+
+    def connection
+      unless @connection.open?
+        @connection.start
+        while @connection.connecting?
+          sleep 0.01
+        end
+      end
+      @connection
+    end
+    
     def self.connector(key)
       self.connectors[key]
     end
