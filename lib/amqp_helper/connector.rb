@@ -25,13 +25,17 @@ module AmqpHelper
     end
 
     def connection
+      ensure_connection_started
+      @connection
+    end
+
+    def ensure_connection_started
       unless @connection.open?
         @connection.start
         while @connection.connecting?
           sleep 0.01
         end
       end
-      @connection
     end
     
     def self.connector(key)
@@ -46,7 +50,6 @@ module AmqpHelper
       self.known_queues = Set.new
       self.connection.close if self.connection
       self.connection = Bunny.new(self.config)
-      self.connection.start
     end
 
     #for testing
