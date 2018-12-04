@@ -6,7 +6,7 @@ require 'bunny'
 module AmqpHelper
   class Listener
 
-    attr_accessor :amqp_config, :queue_name, :name, :action_callback, :connection, :logger
+    attr_accessor :amqp_config, :queue_name, :name, :action_callback, :connection, :logger, :consumer
 
     def initialize(amqp_config:, queue_name:, name:, action_callback:, logger: nil)
       self.amqp_config = if amqp_config
@@ -62,7 +62,7 @@ module AmqpHelper
 
     def listen
       logger.info "Starting AMQP listener for #{name}" if logger
-      queue.subscribe do |delivery_info, properties, payload|
+      self.consumer = queue.subscribe do |delivery_info, properties, payload|
         begin
           action_callback.call(payload)
         rescue Exception => e
@@ -73,5 +73,9 @@ module AmqpHelper
       logger.error "Unknown error starting AMQP listener for #{name}: #{e}" if logger
     end
 
+    def unlisten
+      self.consumer.cancel if self.consumer
+      self.consumer = nil
+    end
   end
 end

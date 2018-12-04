@@ -5,7 +5,7 @@ class ListenerTest < Minitest::Test
   def setup
     @amqp_config = {user: 'guest', password: 'guest'}
     @connector = AmqpHelper::Connector.new(:test, @amqp_config)
-    @queue = 'amqp_helper_listener_test'
+    @queue = 'amqp_helper_test'
     @listener_name = 'listener'
   end
 
@@ -31,6 +31,7 @@ class ListenerTest < Minitest::Test
     @connector.send_message(@queue, 'some_payload')
     sleep 0.1
     assert_equal 'some_payload', @test_var
+    listener.unlisten
   end
 
 end
