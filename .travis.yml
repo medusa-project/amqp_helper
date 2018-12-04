@@ -1,5 +1,17 @@
-sudo: false
+sudo: required
+
 language: ruby
+cache: bundler
+
 rvm:
-  - 2.3.1
-before_install: gem install bundler -v 1.13.6
+  - 2.5.1
+  - jruby
+
+services:
+- rabbitmq
+
+before_install:
+- sudo apt-get update
+
+script:
+- bundle exec rake test
