@@ -8,10 +8,10 @@ rvm:
   - jruby
 
 services:
-- rabbitmq
+  - rabbitmq
 
 before_install:
-- sudo apt-get update
+  - sudo apt-get update
 
 script:
-- bundle exec rake test
+  - bundle exec rake test
