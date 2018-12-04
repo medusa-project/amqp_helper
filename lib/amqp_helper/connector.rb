@@ -10,7 +10,6 @@ BunnyMock::use_bunny_queue_pop_api = true
 module AmqpHelper
   class Connector < Object
 
-    cattr_accessor :connectors
     attr_accessor :known_queues, :config
 
     def initialize(key, config)
@@ -21,6 +20,14 @@ module AmqpHelper
       self.config = config_hash.merge!(recover_from_connection_close: true)
       @connection = nil
       self.reinitialize
+    end
+
+    def self.connectors
+      @connectors
+    end
+
+    def self.connectors=(object)
+      @connectors = object
     end
 
     def connection=(conn)
