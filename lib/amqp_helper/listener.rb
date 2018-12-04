@@ -77,5 +77,10 @@ module AmqpHelper
       self.consumer.cancel if self.consumer
       self.consumer = nil
     end
+
+    def self.unlisten_all
+      listeners.values.each(&:unlisten)
+    end
+
   end
 end

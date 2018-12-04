@@ -11,6 +11,7 @@ class ListenerTest < Minitest::Test
 
   def teardown
     AmqpHelper::Connector.clear_all_queues
+    AmqpHelper::Listener.unlisten_all
   end
 
   def test_listener_creation
@@ -31,7 +32,6 @@ class ListenerTest < Minitest::Test
     @connector.send_message(@queue, 'some_payload')
     sleep 0.1
     assert_equal 'some_payload', @test_var
-    listener.unlisten
   end
 
 end
