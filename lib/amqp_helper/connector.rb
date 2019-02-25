@@ -10,15 +10,24 @@ BunnyMock::use_bunny_queue_pop_api = true
 module AmqpHelper
   class Connector < Object
 
-    cattr_accessor :connectors
     attr_accessor :known_queues, :config
 
     def initialize(key, config)
       self.class.connectors ||= Hash.new
       self.class.connectors[key] = self
-      self.config = config.to_h.symbolize_keys.merge!(recover_from_connection_close: true)
+      config_hash = config.to_h
+      config_hash = config_hash.symbolize_keys if config_hash.respond_to?(:symbolize_keys)
+      self.config = config_hash.merge!(recover_from_connection_close: true)
       @connection = nil
       self.reinitialize
+    end
+
+    def self.connectors
+      @connectors
+    end
+
+    def self.connectors=(object)
+      @connectors = object
     end
 
     def connection=(conn)
@@ -53,20 +62,8 @@ module AmqpHelper
       self.connection = Bunny.new(self.config)
     end
 
-    #for testing
-    def self.mock_all
-      self.connectors.values.each { |connector| connector.mock }
-    end
-
-    #for testing - effectively reinitialize with BunnyMock connection
-    def mock
-      self.known_queues = Set.new
-      self.connection.close if self.connection(ensure_started: false)
-      self.connection = BunnyMock.new(self.config).start
-    end
-
     def self.clear_all_queues
-      self.connectors.values.each { |connector| connector.clear_all_queues } if self.connectors.present?
+      self.connectors.values.each { |connector| connector.clear_all_queues } if self.connectors
     end
 
     def clear_all_queues
@@ -89,7 +86,7 @@ module AmqpHelper
       channel = connection.create_channel
       yield channel
     ensure
-      channel.close if channel.present? and channel.open?
+      channel.close if channel and channel.open?
     end
 
     def with_queue(queue_name)
@@ -135,6 +132,20 @@ module AmqpHelper
         message = message.to_json if message.is_a?(Hash)
         exchange.publish(message, routing_key: queue_name, persistent: true)
       end
+    end
+
+    ### The following are for testing, if it is desired to mock.
+    # We test the gem itself against a real rabbitmq, but clients using
+    # this gem might decide they want to mock
+    def self.mock_all
+      self.connectors.values.each { |connector| connector.mock }
+    end
+
+    # effectively reinitialize with BunnyMock connection
+    def mock
+      self.known_queues = Set.new
+      self.connection.close if self.connection(ensure_started: false)
+      self.connection = BunnyMock.new(self.config).start
     end
 
   end
