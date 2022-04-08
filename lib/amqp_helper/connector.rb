@@ -76,7 +76,9 @@ module AmqpHelper
         while continue
           with_message(queue_name) do |message|
             continue = message
-            puts "#{self.class} clearing: #{message} from: #{queue_name}" if message
+            if message && self.config[:logger]
+              self.config[:logger].debug("#{self.class} clearing: #{message} from: #{queue_name}")
+            end
           end
         end
       end
